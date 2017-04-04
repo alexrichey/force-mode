@@ -1,3 +1,5 @@
+;;; force-mode.el --- A functional force IDE -*- lexical-binding: t -*-
+
 (defun force-cli-command (command)
   (shell-command (concat "force " command)))
 
