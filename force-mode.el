@@ -1,17 +1,23 @@
 ;;; force-mode.el --- A functional force IDE -*- lexical-binding: t -*-
+;;; Commentary:
 
+;;; Code:
 (defun force-cli-command (command)
-  (shell-command (concat "force " command)))
+  "COMMAND."
+  (async-shell-command (concat "force " command)))
 
 (defun force-cli-current-dir ()
+  "."
   (let* ((current-file (current-file-path))
          (current-dir (f-dirname current-file)))
     (print current-dir)))
 
 (defun force-cli--file-is-controller? (file)
+  "FILE."
   (s-suffix? "controller.js" file))
 
 (defun force-cli--file-is-helper? (file)
+  "FILE."
   (s-suffix? "helper.js" file))
 
 ;; (defun force-cli-find-controller ()
@@ -23,37 +29,41 @@
 ;;   (print files))
 
 (defun force-cli-login ()
+  "."
   (interactive)
-  (shell-command "force login"))
+  (async-shell-command "force login"))
 
 (defun force-cli-fetch-classes ()
-  "fetches classes"
+  "Fetch classes."
   (interactive)
   (force-cli-command "fetch -t ApexClass"))
 
 (defun force-cli-fetch-aura ()
-  "fetches aura"
+  "Fetches aura."
   (interactive)
   (force-cli-command "fetch -t aura"))
 
 (defun force-cli-create-apex-class (class-name)
-  "docstring"
+  "CLASS-NAME Docstring."
   (interactive "sClass Name: ")
   (force-cli-command (concat "create -w apexclass -n " class-name)))
 
 (defun force-cli-pull-package ()
+  "."
   (interactive)
   (progn
     (print "exporting standard objects")
     (force-cli-command "export")
     (print "fetching aura")
-    (force-cli-fetch-aura "fetch -t ")))
+    (force-cli-fetch-aura)))
 
 (defun force-cli-list-logins ()
+  "."
   (interactive)
-  (shell-command "force logins"))
+  (async-shell-command "force logins"))
 
 (defun force-cli-apex-class ()
+  "."
   (interactive)
   (progn
     (print "Pushing Apex Class")
@@ -61,6 +71,7 @@
       (force-cli-command (concat "force push -t ApexClass -f " path)))))
 
 (defun force-cli-push-aura-file ()
+  "."
   (interactive)
   (progn
     (print "Pushing Aura File")
@@ -68,6 +79,7 @@
       (force-cli-command (concat "aura push -f " path)))))
 
 (defun force-cli-push-apex-class ()
+  "."
   (interactive)
   (progn
     (print "Pushing Apex Class")
@@ -75,6 +87,7 @@
       (force-cli-command (concat "push -t ApexClass " path)))))
 
 (defun force-cli-helm-complete (data)
+  "DATA."
   (interactive)
   (print (helm :sources (helm-build-sync-source "objects"
                           :candidates data
@@ -82,47 +95,52 @@
                :buffer "* Force cli completions *")))
 
 (defun force-cli--parse-objectnames-from-response (response)
+  "RESPONSE."
   (mapcar (lambda (x) (print (plist-get x :Name))) response))
 
-(defun onSuccessCB (args)
-  )
+;; (defun onSuccessCB (args)
+;;   )
 
-(defun force-cli-complete (params)
-  (request
-   (concat "localhost:8080/complete")
-   :params params
+;; (defun force-cli-complete (params)
+;;   (request
+;;    (concat "localhost:8080/complete")
+;;    :params params
 
-   :parser
-   (lambda ()
-     (let ((json-object-type 'plist))
-       (json-read)))
+;;    :parser
+;;    (lambda ()
+;;      (let ((json-object-type 'plist))
+;;        (json-read)))
 
-   :success
-   (function* (lambda (&key data &allow-other-keys)
-                (progn
-                  (setq results (append data '()))
-                  (insert (force-cli-helm-complete results)))))))
+;;    :success
+;;    (function* (lambda (&key data &allow-other-keys)
+;;                 (progn
+;;                   (setq results (append data '()))
+;;                   (insert (force-cli-helm-complete results)))))))
 
 ;; This is messed up right now
 ;; completions
 (defun force-cli-complete-ui ()
+  "."
   (interactive)
   (let ((results (force-cli-complete '(("type" . "ui")))))))
 
 (defun force-cli-complete-vf ()
+  "."
   (interactive)
   (let ((results (force-cli-complete '(("type" . "vf")))))))
 
 (defun force-cli-complete-classes ()
+  "."
   (interactive)
   (force-cli-complete '(("type" . "classes"))))
 
 (defun force-cli-complete-class-methods (className)
+  "CLASSNAME."
   (interactive "sClassName: ")
   (force-cli-complete `(("type" . "classes")
                         ("className" . ,className))))
 
-(defvar force-cli-keymap nil "Keymap for Force-cli mode")
+(defvar force-cli-keymap nil "Keymap for Force-cli mode.")
 (progn
   (setq force-cli-keymap (make-sparse-keymap))
   (define-key force-cli-keymap (kbd "C-c f p") 'force-cli-push-aura-file)
@@ -143,3 +161,4 @@
 
 
 (provide 'force-mode)
+;;; Force-Mode.el ends here

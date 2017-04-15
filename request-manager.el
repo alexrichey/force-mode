@@ -1,5 +1,7 @@
 ;;; force-mode.el --- A functional force IDE -*- lexical-binding: t -*-
+;;; Commentary:
 
+;;; Code:
 (defvar requests '(0 ""))
 (defvar default-timeout-ms 5000)
 (defvar default-request-interval-ms 100)
@@ -7,18 +9,20 @@
 (defvar request-timer 0)
 
 (defun construct-request-message (type)
-  '(status "PENDING" type type))
+  "TYPE ."
+  `(status "PENDING" ,type))
 
 (defun force-mode-add-to-request-queue (args)
+  "ARGS ."
   (progn (setq request-num (+ 1 request-num))
          (plist-put requests request-num args)
          request-num))
 
-(defun force-mode-start-request-timer ()
-  )
+;; (defun force-mode-start-request-timer ()
+;;   )
 
 (defun force-mode-monitor (req-key)
-  "checks for completed requests; removes key when found"
+  "REQ-KEY check for completed requests; remove key when found."
   (let* ((results (plist-get requests req-key))
          (status (plist-get results 'status)))
     (print (concat "key is" status))
@@ -28,6 +32,7 @@
           ("No request"))))
 
 (defun force-cli-helm-complete (data)
+  "DATA ."
   (interactive)
   (helm :sources (helm-build-sync-source "objects"
                    :candidates data
@@ -35,6 +40,7 @@
         :buffer "* Force cli completions *"))
 
 (defun force-cli-complete (params)
+  "PARAMS ."
   (request
    (concat "localhost:8080/complete")
    :params params
@@ -59,6 +65,6 @@
 ;; (force-cli-helm-complete tester)
 
 (defun force-mode-server-request (request)
-  "put a request in the queue, and give the requestor a key to monitor"
+  "REQUEST put a request in the queue, and give the requestor a key to monitor."
   (let ((req-key (force-mode-add-to-request-queue (construct-request-message request))))
     (force-mode-monitor req-key)))
